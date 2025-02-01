@@ -19,9 +19,9 @@ function activate(context) {
 	// The commandId parameter must match the command field in package.json
 	const disposable = vscode.commands.registerCommand('architext.helloWorld', function () {
 		// The code you place here will be executed every time your command is executed
-
+		
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Architext!');
+		vscode.window.showInformationMessage('Hello VSCode!');
 	});
 
 	context.subscriptions.push(disposable);
