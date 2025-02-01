@@ -1,0 +1,3 @@
+[submodule "ai_stuff/my-awesome-model"]
+	path = ai_stuff/my-awesome-model
+	url = https://huggingface.co/my-awesome-model
