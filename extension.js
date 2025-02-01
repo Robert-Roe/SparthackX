@@ -1,8 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-import * as path from 'path';
-import * as fs from 'fs';
+const path = require('path');
+const fs = require('fs');
+import CodeLensProvider from './generation';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -19,16 +20,74 @@ function activate(context) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('architext.helloWorld', function () {
+	//const disposable = vscode.commands.registerCommand('architext.helloWorld', function () {
 		// The code you place here will be executed every time your command is executed
 
-		const editor = vscode.window.activeTextEditor;//Selects the file to read in from
-		if (!editor) {
-            vscode.window.showErrorMessage('No active editor found');
-            return;
-        }
 
-		const document = editor.document;
+	const documentation = vscode.commands.registerCommand('architext.generateDocumentation', async function(document_uri, function_name) { 
+			if(!document_uri){
+				vscode.window.showErrorMessage('No active editor currently');
+				return; 
+			}
+		const document = document_uri.document; 
+		try {
+			console.log('pp'); 
+			const temp = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',document.uri);
+			var i = 0; 
+			while(Array.isArray(temp[i])){
+				console.log(temp[i]); 
+				++i; 
+			}
+			
+		} catch (err) {
+			console.log('ppp'); 
+			vscode.window.showErrorMessage(`Error retrieving document symbols: ${err.message || err}`); 
+		}
+
+		const language = document.languageId; 
+		const doc_to_code = new CodeLensProvider();
+    	vscode.languages.registerCodeLensProvider('*', doc_to_code);
+		switch (language) {
+			case "javascript":
+			case "typescript":
+				return `/**\n * ${function_name} - Description\n *\n * @param {any} param1 - Description\n * @returns {any} Description\n */\n`;
+	
+			case "python":
+				return `"""\n${function_name} - Description\n\n:param param1: Description\n:return: Description\n"""\n`;
+	
+			case "java":
+			case "csharp":
+				return `/**\n * ${function_name} - Description\n *\n * @param param1 Description\n * @return Description\n */\n`;
+	
+			case "c":
+			case "cpp":
+				return `/**\n * ${function_name} - Description\n *\n * @param param1 Description\n * @return Description\n */\n`;
+	
+			case "ruby":
+				return `# ${function_name} - Description\n#\n# @param param1 Description\n# @return Description\n`;
+	
+			case "php":
+				return `/**\n * ${function_name} - Description\n *\n * @param mixed $param1 Description\n * @return mixed Description\n */\n`;
+	
+			case "go":
+				return `// ${function_name} - Description\n`;
+		};
+
+	});
+
+	console.log("success"); 
+	context.subscriptions.push(documentation); 
+
+
+
+	const docfile = vscode.commands.registerCommand('architext.generateDocFile', async function(document_uri, function_name) { 
+	if(!document_uri){
+		vscode.window.showErrorMessage('No active editor currently');
+		return; 
+	}
+	const document = document_uri.document;
+	vscode.window.showInformationMessage('Generating documents..'); 
+
         const code = document.getText();
 		let response = "";
 		fetchData(code).then(response => {
@@ -44,10 +103,7 @@ function activate(context) {
 		vscode.window.showInformationMessage('API output saved to api_output.txt');
 
 	});
-
-	context.subscriptions.push(disposable);
 }
-
 async function fetchData(code) {
     const response = await fetch('https://api.com', {
 		method: 'POST',
