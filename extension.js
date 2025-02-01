@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+import CodeLensProvider from './generation';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -25,33 +26,45 @@ function activate(context) {
 	//});
 	//context.subscriptions.push(disposable);
 
-	const documentation = vscode.commands.registerCommand('architext.generateDocumentation', async function() {
-		const editor = vscode.window.activeTextEditor; 
-		console.log('in'); 
-		if(!editor){
+	const documentation = vscode.commands.registerCommand('architext.generateDocumentation', async function(document_uri, function_name) { 
+		if(!document_uri){
 			vscode.window.showErrorMessage('No active editor currently');
 			return; 
 		}
-		const document = editor.document; 
-		try {
-			console.log('pp'); 
-			const temp = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',document.uri);
-			var i = 0; 
-			while(Array.isArray(temp[i])){
-				console.log(temp[i]); 
-				++i; 
-			}
-			
-		} catch (err) {
-			console.log('ppp'); 
-			vscode.window.showErrorMessage(`Error retrieving document symbols: ${err.message || err}`); 
-		}
+		//const codeLenses = new CodeLensProvider; 
+		const language = document_uri.languageid; 
+		const doc_to_code = new CodeLensProvider();
+    	vscode.languages.registerCodeLensProvider('*', doc_to_code);
+		switch (language) {
+			case "javascript":
+			case "typescript":
+				return `/**\n * ${function_name} - Description\n *\n * @param {any} param1 - Description\n * @returns {any} Description\n */\n`;
+	
+			case "python":
+				return `"""\n${function_name} - Description\n\n:param param1: Description\n:return: Description\n"""\n`;
+	
+			case "java":
+			case "csharp":
+				return `/**\n * ${function_name} - Description\n *\n * @param param1 Description\n * @return Description\n */\n`;
+	
+			case "c":
+			case "cpp":
+				return `/**\n * ${function_name} - Description\n *\n * @param param1 Description\n * @return Description\n */\n`;
+	
+			case "ruby":
+				return `# ${function_name} - Description\n#\n# @param param1 Description\n# @return Description\n`;
+	
+			case "php":
+				return `/**\n * ${function_name} - Description\n *\n * @param mixed $param1 Description\n * @return mixed Description\n */\n`;
+	
+			case "go":
+				return `// ${function_name} - Description\n`;
+		}; 
 		vscode.window.showInformationMessage('Generate documents..'); 
+		
 	})
 	console.log("success"); 
 	context.subscriptions.push(documentation); 
-
-
 }
 
 // This method is called when your extension is deactivated
