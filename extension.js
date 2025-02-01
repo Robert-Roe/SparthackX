@@ -17,14 +17,41 @@ function activate(context) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('architext.helloWorld', function () {
+	//const disposable = vscode.commands.registerCommand('architext.helloWorld', function () {
 		// The code you place here will be executed every time your command is executed
-		
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello VSCode!');
-	});
 
-	context.subscriptions.push(disposable);
+		// Display a message box to the user
+		//vscode.window.showInformationMessage('Hello World from Architext!');
+	//});
+	//context.subscriptions.push(disposable);
+
+	const documentation = vscode.commands.registerCommand('architext.generateDocumentation', async function() {
+		const editor = vscode.window.activeTextEditor; 
+		console.log('in'); 
+		if(!editor){
+			vscode.window.showErrorMessage('No active editor currently');
+			return; 
+		}
+		const document = editor.document; 
+		try {
+			console.log('pp'); 
+			const temp = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',document.uri);
+			var i = 0; 
+			while(Array.isArray(temp[i])){
+				console.log(temp[i]); 
+				++i; 
+			}
+			
+		} catch (err) {
+			console.log('ppp'); 
+			vscode.window.showErrorMessage(`Error retrieving document symbols: ${err.message || err}`); 
+		}
+		vscode.window.showInformationMessage('Generate documents..'); 
+	})
+	console.log("success"); 
+	context.subscriptions.push(documentation); 
+
+
 }
 
 // This method is called when your extension is deactivated
