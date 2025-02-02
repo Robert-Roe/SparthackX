@@ -1,17 +1,18 @@
+import sys
 import ollama  # Local import to avoid circular issues
 import json
 
 def generate_documentation():
     # Load examples from the JSON file
-    with open('training.json', 'r') as f:
+    with open('/home/tutu/ArchiText/SparthackX/ai_stuff/training.json', 'r') as f:
         data = json.load(f)
 
     # Build the prompt dynamically from the examples in the JSON file
     standard = """You are an expert in writing clear and detailed code documentation. Please use the following examples to guide your responses \n\n"""
     
     
-    for example in data["examples"]:
-        standard += f"Example:\nCode: {example['code']}\nDocumentation: {example['documentation']}\n\n"
+    #for example in data["examples"]:
+     #   standard += f"Example:\nCode: {example['code']}\nDocumentation: {example['documentation']}\n\n"
     
     standard += """
             Do not include any <think> sections in your response!
@@ -26,15 +27,20 @@ def generate_documentation():
             The following line of code will be what we would like documentation for. Please use all prior input to help format your documentation.
             """
 
-    run = True
-    while(run):
-        input_code = input("Enter Your Code: ")
-        prompt = standard + input_code
+   
+    input_code = sys.argv[-1]
+    prompt = standard + input_code
 
-        # Call the Ollama model
-        response = ollama.chat(model='deepseek-r1:1.5b', messages=[{"role": "user", "content": prompt}])
+    # Call the Ollama model
+    response = ollama.chat(model='deepseek-r1:1.5b', messages=[{"role": "user", "content": prompt}])
 
-        # Print the generated documentation
-        print(response['message']['content'])
+    # fix the response
+    look_for = "</think>"
+
+    # Print the generated documentation
+    soln = response['message']['content']
+    index = soln.find(look_for)
+    soln = soln[index + len("</think>"):]
+    print(soln)
 
 generate_documentation()
