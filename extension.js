@@ -1,7 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-import { execSync } from 'child_process';	
+	
+const execSync = require('child_process');
+
 class CodeLensProvider {
 	async provideCodeLenses(document, token){
 		const symbols = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', document.uri);
@@ -64,7 +66,7 @@ function activate(context) {
 
 		let command = ""
 		command = "Generate documentation for the function " + function_name + ". This documentation should include details on the functions role, its inputs, and its output if any. Include whitespace between each of these sections.";
-		const output = execSync(`python3 ollama_test.py`, {
+		const output = execSync.execSync("python3 /home/tutu/ArchiText/SparthackX/ai_stuff/ollama_test.py", {
 			input: command, 
 			encoding: "utf-8"
 		});
