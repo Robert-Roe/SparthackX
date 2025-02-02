@@ -1,9 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-	
-const execSync = require('child_process');
-
+const path = require('path');
+const fs = require('fs')
 class CodeLensProvider {
 	async provideCodeLenses(document, token){
 		const symbols = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', document.uri);
@@ -31,6 +30,20 @@ class CodeLensProvider {
 	}
 }
 
+
+async function clearJsonFile() {
+    const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const filePath = path.join(workspaceFolder, 'api_docs.json');
+    
+    try {
+        // Clear the contents of the file by writing an empty object or array
+        await vscode.workspace.fs.writeFile(vscode.Uri.file(filePath), Buffer.from(JSON.stringify([]))); // Empty array
+        vscode.window.showInformationMessage('api_docs.json has been cleared!');
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to clear file: ${error.message}`);
+    }
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
@@ -54,6 +67,7 @@ function activate(context) {
 	//});
 	//context.subscriptions.push(disposable);
 
+	let totDocuments = []; 
 	const documentation = vscode.commands.registerCommand('architext.generateDocumentation', async function(document_uri, function_name, function_pos) { 
 		const editor = await vscode.window.activeTextEditor; 
 		if(!editor){
@@ -63,14 +77,6 @@ function activate(context) {
 		vscode.window.showInformationMessage('Generate documents...'); 
 		const language = editor.document.languageId; 
 		console.log(document_uri," ",function_name," ",language, " ", function_pos); 
-
-		let command = ""
-		command = "Generate documentation for the function " + function_name + ". This documentation should include details on the functions role, its inputs, and its output if any. Include whitespace between each of these sections.";
-		const output = execSync.execSync("python3 /home/tutu/ArchiText/SparthackX/ai_stuff/ollama_test.py", {
-			input: command, 
-			encoding: "utf-8"
-		});
-
 		
 		let documentation_template = "";
 		switch (language) {
@@ -79,7 +85,7 @@ function activate(context) {
 				documentation_template = `/**\n * ${function_name} - Description\n *\n * @param {any} param1 - Description\n * @returns {any} Description\n */\n`;
 				break; 
 			case "python":
-				documentation_template = `"""\n${output}"""\n`;
+				documentation_template = `"""\n${function_name} - Description\n\n:param param1: Description\n:return: Description\n"""\n`;
 				break;
 			case "java":
 			case "csharp":
@@ -87,7 +93,7 @@ function activate(context) {
 				break;
 			case "c":
 			case "cpp":
-				documentation_template = `/**\n ${function_name} /\n`;
+				documentation_template = `/**\n * ${function_name} - Description\n *\n * @param param1 Description\n * @return Description\n */\n`;
 				break;
 			case "ruby":
 				documentation_template = `# ${function_name} - Description\n#\n# @param param1 Description\n# @return Description\n`;
@@ -99,16 +105,29 @@ function activate(context) {
 				documentation_template = `// ${function_name} - Description\n`;
 				break; 
 		}; 
-		console.log(documentation_template);
-		console.log(function_pos); 
+		console.log("length",documentation_template.length);
+		console.log("pos",function_pos); 
 		editor.edit(editBuilder => {
             editBuilder.insert(function_pos, documentation_template);
         });
+		totDocuments.push({
+			func_name: function_name,
+			description: documentation_template
+		});
+		
+		const docsFilePath = path.join(__dirname, 'api_docs.json');
+		fs.writeFileSync(docsFilePath, JSON.stringify(totDocuments, null, 2));
+		console.log("e",totDocuments); 
+		
 	}); 
+	
 	console.log("success"); 
 	context.subscriptions.push(documentation); 
-	const doc_to_code = new CodeLensProvider();
+	const doc_to_code = new CodeLensProvider ();
     context.subscriptions.push(vscode.languages.registerCodeLensProvider('*', doc_to_code));
+	console.log("temp",context); 
+
+	clearJsonFile();
 }
 
 // This method is called when your extension is deactivated
