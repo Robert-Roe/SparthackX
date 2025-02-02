@@ -60,6 +60,8 @@ function activate(context) {
 		vscode.window.showInformationMessage('Generate documents...'); 
 		const language = editor.document.languageId; 
 		console.log(document_uri," ",function_name," ",language, " ", function_pos); 
+
+		
 		
 		let documentation_template = "";
 		switch (language) {
