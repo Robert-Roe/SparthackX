@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parse JSON</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .doc-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .function-doc {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .function-name {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .description {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Function Documentation</h1>
+    <div id="docs" class="doc-container"></div>
+
+    <script>
+        // Fetch the JSON data from the external file
+        fetch('api_docs.json')  // Replace with the path to your actual JSON file
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => renderDocumentation(data))  // Call the function to render the data
+            .catch(error => console.error("Error loading JSON:", error));
+
+        // Function to render the documentation
+        function renderDocumentation(data) {
+            const docsContainer = document.getElementById('docs');
+            docsContainer.innerHTML = '';  // Clear any existing content
+
+            data.forEach(item => {
+                const docDiv = document.createElement('div');
+                docDiv.className = 'function-doc';
+
+                const funcNameDiv = document.createElement('div');
+                funcNameDiv.className = 'function-name';
+                funcNameDiv.innerText = item.func_name;
+
+                const descriptionDiv = document.createElement('div');
+                descriptionDiv.className = 'description';
+                descriptionDiv.innerText = item.description;
+
+                docDiv.appendChild(funcNameDiv);
+                docDiv.appendChild(descriptionDiv);
+
+                docsContainer.appendChild(docDiv);
+            });
+        }
+    </script>
+</body>
+</html>

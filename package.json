@@ -14,7 +14,7 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "architext.showFunctionNames",
+      "command": "architext.generateDocumentation",
       "title": "Generate Documentation",
       "category": "Architext"
     }]
