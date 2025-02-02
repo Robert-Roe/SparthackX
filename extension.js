@@ -107,9 +107,10 @@ function activate(context) {
 		}; 
 		console.log("length",documentation_template.length);
 		console.log("pos",function_pos); 
-		editor.edit(editBuilder => {
-            editBuilder.insert(function_pos, documentation_template);
+    	 editor.edit(editBuilder => {
+         editBuilder.insert(function_pos, documentation_template);
         });
+		
 		totDocuments.push({
 			func_name: function_name,
 			description: documentation_template
