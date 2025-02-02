@@ -1,41 +1,54 @@
-from langchain.llms import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
-# Load LLaMA model and tokenizer
-model_name = "meta-llama/Llama-2-7b-chat-hf"  # Example: LLaMA-2 7B Chat
+# Load the model and tokenizer
+#model_name = "from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+
+# Load the model and tokenizer
+model_name = "deepseek-ai/DeepSeek-R1"
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
-# Create a pipeline for text generation
-pipeline = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
-    max_length=200,
-    temperature=0.7,
-    top_p=0.9
+# Load the model with FP8 support
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.float16,  # Change this to torch.float8_e5m2 if FP8 is supported
+    device_map="auto"
 )
 
-# Use in LangChain
-llm = HuggingFacePipeline(pipeline=pipeline)
+# Define the input prompt
+prompt = "Write a Python function to compute the Fibonacci sequence."
 
-# Test the model
-response = llm("What is the capital of France?")
-print(response)
+# Tokenize the input
+inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
 
-from langchain_core.prompts import ChatPromptTemplate
-system = """
-You are a world-class technical documentation writer for source code. 
-Make sure to provide clear, concise documentation, adhering to the following guidelines:
+# Generate output
+with torch.no_grad():
+    output = model.generate(**inputs, max_length=200)
 
-1. Use simple and understandable language, keeping the documentation accessible to both beginners and advanced users.
-2. Include references to installed packages and explain their purpose, usage, and examples where relevant.
-3. Format the documentation in **Markdown** with proper headers, lists, and code blocks for clarity.
-4. Keep the documentation brief but informative, focusing on key details like function/method purpose, parameters, and expected output.
-5. Specify any npm package installations that are required, and provide installation commands when relevant.
-6. For npm packages, provide a brief explanation of the tool or library's purpose, how it integrates with the code, and usage examples.
-"""
-prompt = ChatPromptTemplate.from_messages([
-    ("system", system),
-    ("user", "{input}")
-])
+# Decode and print the output
+print(tokenizer.decode(output[0], skip_special_tokens=True))
+
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Load the model with FP8 support
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.float16,  # Change this to torch.float8_e5m2 if FP8 is supported
+    device_map="auto"
+)
+
+# Define the input prompt
+prompt = "Write a Python function to compute the Fibonacci sequence."
+
+# Tokenize the input
+inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+
+# Generate output
+with torch.no_grad():
+    output = model.generate(**inputs, max_length=200)
+
+# Decode and print the output
+print(tokenizer.decode(output[0], skip_special_tokens=True))

@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "code": "template <class T, size_t N> class array;",
+            "documentation": "Arrays are fixed-size sequence containers: they hold a specific number of elements ordered in a strict linear sequence.\n\nInternally, an array does not keep any data other than the elements it contains (not even its size, which is a template parameter, fixed at compile time). It is as efficient in terms of storage size as an ordinary array declared with the language's bracket syntax ([]). This class merely adds a layer of member and global functions to it, so that arrays can be used as standard containers.\n\nUnlike the other standard containers, arrays have a fixed size and do not manage the allocation of its elements through an allocator: they are an aggregate type encapsulating a fixed-size array of elements. Therefore, they cannot be expanded or contracted dynamically (see vector for a similar container that can be expanded).\n\nZero-sized arrays are valid, but they should not be dereferenced (members front, back, and data).\n\nUnlike with the other containers in the Standard Library, swapping two array containers is a linear operation that involves swapping all the elements in the ranges individually, which generally is a considerably less efficient operation. On the other side, this allows the iterators to elements in both containers to keep their original container association.\n\nAnother unique feature of array containers is that they can be treated as tuple objects: The <array> header overloads the get function to access the elements of the array as if it was a tuple, as well as specialized tuple_size and tuple_element types."
+        },
+        {
+            "code": "#include <iostream>\n#include <deque>\n\nint main ()\n{\n  std::deque<int> first;\n  std::deque<int> second;\n  std::deque<int> third;\n\n  first.assign (7,100);             // 7 ints with a value of 100\n\n  std::deque<int>::iterator it;\n  it=first.begin()+1;\n\n  second.assign (it,first.end()-1); // the 5 central values of first\n\n  int myints[] = {1776,7,4};\n  third.assign (myints,myints+3);   // assigning from array.\n\n  std::cout << \"Size of first: \" << int (first.size()) << '\\n';\n  std::cout << \"Size of second: \" << int (second.size()) << '\\n';\n  std::cout << \"Size of third: \" << int (third.size()) << '\\n';\n  return 0;\n}",
+            "documentation": "This program demonstrates the use of the `assign()` function in `std::deque`. The `assign()` function is used to populate the deque with elements.\n\nIn the example:\n- The `first` deque is filled with 7 elements, each having a value of 100.\n- The `second` deque is assigned values from `first`, excluding the first and last elements, leaving 5 elements.\n- The `third` deque is filled with an array of integers {1776, 7, 4}.\n\nFinally, the sizes of the three deques are printed."
+        },
+        {
+            "code": "#include <iostream>\n#include <deque>\n\nint main ()\n{\n  std::deque<unsigned> mydeque (10);   // 10 zero-initialized unsigneds\n\n  // assign some values:\n  for (unsigned i=0; i<mydeque.size(); i++)\n    mydeque.at(i)=i;\n\n  std::cout << \"mydeque contains:\";\n  for (unsigned i=0; i<mydeque.size(); i++)\n    std::cout << ' ' << mydeque.at(i);\n\n  std::cout << '\\n';\n\n  return 0;\n}",
+            "documentation": "The function `at(size_type n)` returns a reference to the element at position `n` in the deque container object. The `at()` function checks whether `n` is within the bounds of valid elements in the container, throwing an `out_of_range` exception if it is not. This is in contrast with the `operator[]`, which does not check bounds.\n\nIn the example:\n- The `mydeque` deque is filled with 10 elements, each having a value from 0 to 9 using `at()`. Then, the program prints the contents of `mydeque`."
+        },
+        {
+            "code": "const_reverse_iterator crbegin() const noexcept;",
+            "documentation": "Returns a `const_reverse_iterator` pointing to the last element in the container (i.e., its reverse beginning)."
+        },
+        {
+            "code": "template <class... Args>  iterator emplace (const_iterator position, Args&&... args);",
+            "documentation": "Construct and insert an element at a specified position in the container. The element is constructed in place using the arguments provided. This effectively increases the container size by one. Double-ended queues are designed to be efficient when performing insertions (and removals) from either end of the sequence. Insertions at other positions are usually less efficient than in list or forward_list containers."
+        },
+        {
+            "code": "template <class... Args>  void emplace_back (Args&&... args);",
+            "documentation": "Construct and insert an element at the end of the deque. The element is constructed in place using the arguments provided. This increases the container size by one. The `emplace_back()` function is more efficient than `push_back()` because it constructs the element in-place, rather than copying or moving an existing object."
+        },
+        {
+            "code": "bool empty() const;",
+            "documentation": "Returns `true` if the container size is 0, and `false` otherwise."
+        },
+        {
+            "code": "iterator end(); const_iterator end() const;",
+            "documentation": "Returns an iterator referring to the past-the-end element in the deque container. The past-the-end element is the theoretical element that would follow the last element in the deque. This is typically used in combination with `deque::begin()` to specify a range that includes all elements in the container."
+        },
+        {
+            "code": "iterator erase (iterator position); iterator erase (iterator first, iterator last);",
+            "documentation": "Removes elements from the deque container. The `erase()` function can be used to remove a single element or a range of elements.\n\nThis reduces the container size by the number of elements removed, and the elements are destroyed. It is generally more efficient to remove elements from the beginning or end of the deque, but removal from other positions is possible."
+        }
+    ]
+}
