@@ -9,12 +9,14 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "architext.helloWorld",
-      "title": "Hello World"
+      "command": "architext.generateDocumentation",
+      "title": "Generate Documentation",
+      "category": "Architext"
     }]
   },
   "scripts": {
